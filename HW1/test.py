@@ -102,8 +102,34 @@ elif sys.argv[1] == 'push':
     for i in range(0,10,1):
         print("boo #"+str(i+1)+": "+str(sorted_boos_dict[i][0])+" "+str(sorted_boos_dict[i][1]),file=pushFile)
 
-
-
-
-
-
+elif sys.argv[1] == 'popular':
+    try :
+        dataFile = open('all_popular.txt','r',encoding='utf8')
+        start = str(sys.argv[2])
+        end = str(sys.argv[3])
+        if( int(start) > int (end) ):
+            raise EOFError('[Error] \"Start date must small than end date\"')
+    except FileNotFoundError as e:
+        sys.exit()
+    except IndexError as e:
+        sys.exit()
+    except EOFError as e:
+        sys.exit()
+    fileName = "popular["+str(start)+"-"+str(end)+"].txt"
+    popFile = open(fileName,'w',encoding='utf8')
+    lineList = list(dataFile)
+    UrlList = list()
+    for i in lineList :
+        tmp = str(i).split(',')
+        if(int(tmp[0]) >= int(start) and int(tmp[0]) <= int(end)):
+            UrlList.append(str(tmp[-1]).replace('\n',''))
+    print("number of popular articles: "+str(len(UrlList)),file = popFile)
+    for Url in UrlList:
+        re = requests.get(str(Url))
+        content = re.text
+        soup = BeautifulSoup(content,'html.parser')
+        tmpImg = soup.find_all('a', href=True)
+        for tmp in tmpImg :
+            string = str(tmp.get('href'))
+            if string.endswith(('.jpg','.gif','.jpeg','.png')):
+                print(string,file=popFile)

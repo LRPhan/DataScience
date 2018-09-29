@@ -154,3 +154,55 @@ elif sys.argv[1] == 'popular':
             string = str(tmp.get('href'))
             if string.endswith(('.jpg','.gif','.jpeg','.png')):
                 print(string,file=popFile)
+        time.sleep(0.1)
+
+elif sys.argv[1] == 'keyword':
+    try :
+        dataFile = open('all_popular.txt','r',encoding='utf8')
+        keyword = sys.argv[2]
+        start = str(sys.argv[3])
+        end = str(sys.argv[4])
+        if( int(start) > int (end) ):
+            raise EOFError('[Error] \"Start date must small than end date\"')
+        if(keyword == None):
+            raise EOFError('[Error] \"Enter keyword first\"')
+    except FileNotFoundError as e:
+        print("file open error make sure crawl first { " + str(e)+" }")
+        sys.exit()
+    except IndexError as e:
+        print("need start date and end date { "+str(e)+" }")
+        sys.exit()
+    except EOFError as e:
+        print(str(e))
+        sys.exit()
+
+    fileName = "keyword("+str(keyword)+")["+str(start)+"-"+str(end)+"].txt"
+    keyFile = open(fileName,'w',encoding='utf8')
+    lineList = list(dataFile)
+    UrlList = list()
+    for i in lineList :
+        tmp = str(i).split(',')
+        if(int(tmp[0]) >= int(start) and int(tmp[0]) <= int(end)):
+            UrlList.append(str(tmp[-1]).replace('\n',''))
+    
+    for Url in UrlList:
+        print(Url)
+        re = requests.get(str(Url))
+        content = re.text
+        soup = BeautifulSoup(content,'html.parser')
+        for i in soup(["script","style"]):
+            i.extract()
+        soup.find(id="topbar-container").extract()
+        soup.find(id="navigation-container").extract()
+        sub = soup.get_text().strip()
+        sub = sub[:sub.find('發信站')-5]
+        print(sub.find(keyword))
+        if sub.find(keyword)>=0 :
+            soup2 = BeautifulSoup(content,'html.parser')
+            tmpImg = soup2.find_all('a', href=True)
+            for tmp in tmpImg :
+                string = str(tmp.get('href'))
+                if string.endswith(('.jpg','.gif','.jpeg','.png')):
+                    print(string,file=keyFile)
+        time.sleep(0.1)
+

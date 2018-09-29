@@ -15,7 +15,6 @@ if sys.argv[1] == 'crawl':
     for k in range(1992,2341):
         url = "https://www.ptt.cc/bbs/Beauty/index"
         url = url+str(k)+".html"
-        print (url)
         re = requests.get(url)
         content = re.text
         soup = BeautifulSoup(content,'html.parser')
@@ -31,19 +30,12 @@ if sys.argv[1] == 'crawl':
                 tmpStr = subDate+","
             if( subUrl != None):
                 if(str(subUrl.text).find("[公告]") == 0):
-                    print("announcement")
                     continue
                 tmpStr += subUrl.text+","+"https://www.ptt.cc"+subUrl.get('href')
                 print(tmpStr,file=dataFile)
                 pop = article[i].find(class_="hl f1")
                 if(pop != None):
                     print(tmpStr,file=popFile)
-    # dataFile.writelines(tmpStr)
-    # print(subUrl.text)
-    # print(subUrl.get('href'))
-    # print ("None")
-            print (tmpStr)
-            print (i)
         time.sleep(0.5)
     dataFile.close()
 elif sys.argv[1] == 'push':
@@ -54,13 +46,10 @@ elif sys.argv[1] == 'push':
         if( int(start) > int (end) ):
             raise EOFError('[Error] \"Start date must small than end date\"')
     except FileNotFoundError as e:
-        print("file open error make sure crawl first { " + str(e)+" }")
         sys.exit()
     except IndexError as e:
-        print("need start date and end date { "+str(e)+" }")
         sys.exit()
     except EOFError as e:
-        print(str(e))
         sys.exit()
 
     fileName = "push["+str(start)+"-"+str(end)+"].txt"
@@ -77,7 +66,6 @@ elif sys.argv[1] == 'push':
     likesDict = dict()
     boosDict = dict()
     for Url in UrlList :
-        print(Url)
         re = requests.get(str(Url))
         content = re.text
         soup = BeautifulSoup(content,'html.parser')
@@ -109,9 +97,6 @@ elif sys.argv[1] == 'push':
     sorted_boos_dict = sorted(boosDict.items(),key =lambda d: d[1],reverse=True)
     likesDict = dict(sorted(likesDict.items(),key =lambda d: d[0]))
     sorted_likes_dict = sorted(likesDict.items(),key =lambda d: d[1],reverse=True)
-    print(sorted_likes_dict)
-    print(boosDict)
-    
     for i in range(0,10,1):
         print("like #"+str(i+1)+": "+str(sorted_likes_dict[i][0])+" "+str(sorted_likes_dict[i][1]),file=pushFile)
     for i in range(0,10,1):
